@@ -1,7 +1,8 @@
-use crate::utils::{active_internet_connection, get_config};
+use crate::handler::handle_recived_data;
 use tokio::net::TcpStream;
-use Redox::receive;
-
+use Redox::schema::config::get_config;
+use Redox::utils::active_internet_connection;
+use Redox::utils::network::receive;
 
 pub async fn start_connector() {
     let mut is_connected;
@@ -11,20 +12,22 @@ pub async fn start_connector() {
         if is_connected {
             break;
         }
+        println!("Rechecking conn")
     }
     println!("Internet connection established");
     let config = get_config().await;
     println!("Connecting to the server {}, {}", config.get_host(), config.get_port());
-    let mut stream = match TcpStream::connect(format!("{}:{}", config.get_host(), config.get_port())).await{
+    let mut stream = match TcpStream::connect(format!("{}:{}", config.get_host(), config.get_port())).await {
         Ok(stream) => stream,
         Err(_) => {
             println!("Failed to connect to the server");
             return;
         }
     };
-    let data = receive(&mut stream).await.unwrap();
-    if data.datatype.eq("1") { 
-        println!("Received data: {}", String::from_utf8(data.data).unwrap());
+    loop {
+        let r = receive(&mut stream).await.unwrap();
+        handle_recived_data(&mut stream, r).await;
+        
     }
-    
 }
+

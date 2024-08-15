@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::thread;
-use crate::utils::get_current_timestamp;
+use Redox::utils::get_current_timestamp;
 
 pub fn start_clipboard() {
     //TODO! stop spawning new threads

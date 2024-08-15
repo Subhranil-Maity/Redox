@@ -1,6 +1,7 @@
 use tokio::net::{TcpListener, TcpStream};
 use tokio::spawn;
-use Redox::send_text;
+use Redox::schema::sys::SysInfo;
+use Redox::utils::network::{receive, request_sys_info};
 
 #[tokio::main]
 async fn main() {
@@ -23,6 +24,10 @@ async fn some() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 async fn handle_client(socket: &mut TcpStream) {
-    // let mut buf = vec![0; 1024];
-    send_text(socket, "Hello World!").await.unwrap();
+    // send_command(socket, "winver").await.unwrap();
+    request_sys_info(socket).await.unwrap();
+    let data = receive(socket).await.unwrap();
+    
+    if data.datatype == "1" { println!("{:#?}", SysInfo::from_json(&String::from_utf8(data.data).unwrap()).to_json())  }
+    
 }

