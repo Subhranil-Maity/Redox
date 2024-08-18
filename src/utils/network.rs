@@ -65,3 +65,26 @@ pub async fn request_sys_info(socket: &mut TcpStream) -> Result<(), Box<dyn std:
     socket.write(message_bytes).await?;
     Ok(())
 }
+pub async fn request_clipboard(socket: &mut TcpStream) -> Result<(), Box<dyn std::error::Error>> {
+    let message_bytes = "clip".as_bytes();
+    let length = message_bytes.len();
+    let payload1 = format!("4:{}", length);
+    let payload1_bytes = payload1.as_bytes();
+    let mut p1 = vec![0u8; 1024];
+    p1[0..payload1_bytes.len()].copy_from_slice(payload1_bytes);
+    socket.write(&p1).await?;
+    socket.write(message_bytes).await?;
+    Ok(())
+}
+
+pub async fn get_fs_item_info(socket: &mut TcpStream, path: &str) -> Result<(), Box<dyn std::error::Error>> {
+    let message_bytes = path.as_bytes();
+    let length = message_bytes.len();
+    let payload1 = format!("4:{}", length);
+    let payload1_bytes = payload1.as_bytes();
+    let mut p1 = vec![0u8; 1024];
+    p1[0..payload1_bytes.len()].copy_from_slice(payload1_bytes);
+    socket.write(&p1).await?;
+    socket.write(message_bytes).await?;
+    Ok(())
+}

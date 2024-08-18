@@ -1,6 +1,9 @@
 use std::time::{SystemTime, UNIX_EPOCH};
 
 pub mod network;
+mod fs;
+mod errors;
+mod screenshots;
 
 pub fn get_current_timestamp() -> String {
     let start = SystemTime::now();

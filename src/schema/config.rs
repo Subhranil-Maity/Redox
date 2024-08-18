@@ -1,5 +1,5 @@
+use crate::myconst::{CONFIG_URL, OFFLINE_MODE};
 use serde::{Deserialize, Serialize};
-use crate::myconst::CONFIG_URL;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Config {
@@ -14,16 +14,25 @@ impl Config {
             port,
         }
     }
-    
+
     pub fn get_host(&self) -> String {
         self.host.clone()
     }
-    
+
     pub fn get_port(&self) -> u32 {
         self.port
     }
 }
-pub async fn get_config() -> Config{
-    let config = reqwest::get(CONFIG_URL).await.unwrap().json::<Config>().await.unwrap();
+pub async fn get_config() -> Config {
+    let config;
+    if !OFFLINE_MODE {
+        config = reqwest::get(CONFIG_URL).await.unwrap().json::<Config>().await.unwrap();
+    } else {
+        println!("Running on no Internet mode");
+        config = Config {
+            host: "127.0.0.1".to_string(),
+            port: 3000,
+        };
+    }
     config
 }
